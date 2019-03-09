@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import time
 import torch
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 # Hyperparameters
 epochs = 50
@@ -57,37 +57,37 @@ def shuffle(trainData, trainTarget):
 
 def model_forward(x, weights, biases):
 
-    # first conv2d layer
+    # First conv2d layer
     x = tf.nn.conv2d(x, filter=weights['conv2d_filter1'], strides=[1, 1, 1, 1], padding='SAME')
     x = tf.nn.bias_add(x, biases['bias1'])
 
-    # first relu layer
+    # First ReLU layer
     x = tf.nn.relu(x)
 
-    # batch normalization layer
+    # Batch normalization layer
     mean, variance = tf.nn.moments(x, axes=[0])
     x = tf.nn.batch_normalization(x, mean=mean, variance=variance, offset=None, scale=None, variance_epsilon=1e-8)
 
     # 2x2 max pooling layer
     x = tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+    # print(x.shape)
 
-    # shape of maxpool = (batch_size, 14, 14, 32)
     # Flatten Layer
     x = tf.reshape(x, [-1, weights['fc1_weight'].get_shape().as_list()[0]])
 
-    # fully connected layer 1 (784 output units)
+    # Fully connected layer 1 (784 output units)
     x = tf.add(tf.matmul(x, weights['fc1_weight']), biases['fc1_bias'])
 
-    # dropout layer
+    # Dropout layer
     x = tf.layers.dropout(x, rate=0.9)
 
-    # second RELU layer
+    # Second ReLU layer
     x = tf.nn.relu(x)
 
-    # fully connected layer 2 (10 output units)
+    # Fully connected layer 2 (10 output units)
     x = tf.add(tf.matmul(x, weights['out_weight']), biases['out_bias'])
 
-    # softmax the output
+    # Softmax to formulate the output
     res = tf.nn.softmax(x)
 
     return res
@@ -106,12 +106,9 @@ if __name__ == '__main__':
     y = tf.placeholder("float", [None, num_classes])
 
     weights = {
-        'conv2d_filter1': tf.get_variable('W1', shape=(3, 3, 1, 32),
-                                          initializer=tf.contrib.layers.xavier_initializer()),
-        'fc1_weight': tf.get_variable('W2', shape=(32 * 14 * 14, 784),
-                                      initializer=tf.contrib.layers.xavier_initializer()),
-        'out_weight': tf.get_variable('W6', shape=(784, num_classes),
-                                      initializer=tf.contrib.layers.xavier_initializer())
+        'conv2d_filter1': tf.get_variable('W1', shape=(3, 3, 1, 32), initializer=tf.contrib.layers.xavier_initializer()),
+        'fc1_weight': tf.get_variable('W2', shape=(32 * 14 * 14, 784), initializer=tf.contrib.layers.xavier_initializer()),
+        'out_weight': tf.get_variable('W6', shape=(784, num_classes), initializer=tf.contrib.layers.xavier_initializer())
     }
 
     biases = {
@@ -120,13 +117,13 @@ if __name__ == '__main__':
         'out_bias': tf.get_variable('B3', shape=(num_classes), initializer=tf.contrib.layers.xavier_initializer())
     }
 
-    # convert to one-hot
+    # Convert to one-hot
     newtrain, newvalid, newtest = convertOneHot(trainTarget, validTarget, testTarget)
 
     pred = model_forward(x, weights, biases)
 
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=pred)) + \
-           tf.multiply(
+        tf.multiply(
                tf.reduce_sum(tf.square(weights['conv2d_filter1'])) + tf.reduce_sum(tf.square(weights['fc1_weight']))
                + tf.reduce_sum(tf.square(weights['out_weight'])), regularization / 2)
 
@@ -149,16 +146,11 @@ if __name__ == '__main__':
                 train_Batch = trainData[i * batch_size: min((i+1)*batch_size, len(trainData))]
                 train_Target_Batch = newtrain[i * batch_size: min((i+1)*batch_size, len(trainData))]
 
-                sess.run(optimizer, feed_dict={x: train_Batch, y: train_Target_Batch })
+                sess.run(optimizer, feed_dict={x: train_Batch, y: train_Target_Batch})
 
-            # at each epoch calculate the loss and accuracy
-                train_loss, train_acc = sess.run([cost, accuracy], feed_dict={x: train_Batch,
-                                                                  y: train_Target_Batch})
+                train_loss, train_acc = sess.run([cost, accuracy], feed_dict={x: train_Batch, y: train_Target_Batch})
+                # valid_loss, valid_acc = sess.run([cost, accuracy], feed_dict={x: validData, y: newvalid})
+                # test_loss, test_acc = sess.run([cost, accuracy], feed_dict={x: testData, y: newtest})
 
-                #valid_loss, valid_acc = sess.run([cost, accuracy], feed_dict={x: validData, y: newvalid})
-                #test_loss, test_acc = sess.run([cost, accuracy], feed_dict={x: testData, y: newtest})
-
-
-            print("Epoch: {}, | Training loss: {:.5f} "
-                      "Training Accuracy: {:.5f}  "
-                      .format(epoch + 1, train_loss, train_acc))
+            print("Epoch: {} | Training loss: {:.5f} Training Accuracy: {:.5f} | Validation Loss: {:.5f} Validation Accuracy: {:.5f} | Test Loss: {:.5f} Test Accuracy: {:.5f}  "
+                  .format(epoch + 1, train_loss, train_acc, valid_loss, valid_acc, test_loss, test_acc))
