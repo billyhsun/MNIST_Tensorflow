@@ -2,9 +2,8 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-import torch
 import os
-# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 # Hyperparameters
 epochs = 50
@@ -12,9 +11,6 @@ batch_size = 32
 learn_rate = 0.0001
 regularization = 0.1
 num_classes = 10
-
-# Use GPU
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 # Load the data
@@ -149,8 +145,11 @@ if __name__ == '__main__':
                 sess.run(optimizer, feed_dict={x: train_Batch, y: train_Target_Batch})
 
                 train_loss, train_acc = sess.run([cost, accuracy], feed_dict={x: train_Batch, y: train_Target_Batch})
-                # valid_loss, valid_acc = sess.run([cost, accuracy], feed_dict={x: validData, y: newvalid})
-                # test_loss, test_acc = sess.run([cost, accuracy], feed_dict={x: testData, y: newtest})
+                valid_loss, valid_acc = sess.run([cost, accuracy], feed_dict={x: validData, y: newvalid})
+                test_loss, test_acc = sess.run([cost, accuracy], feed_dict={x: testData, y: newtest})
 
             print("Epoch: {} | Training loss: {:.5f} Training Accuracy: {:.5f} | Validation Loss: {:.5f} Validation Accuracy: {:.5f} | Test Loss: {:.5f} Test Accuracy: {:.5f}  "
                   .format(epoch + 1, train_loss, train_acc, valid_loss, valid_acc, test_loss, test_acc))
+
+            # print("Epoch: {} | Training loss: {:.5f} Training Accuracy: {:.5f}  "
+            #      .format(epoch + 1, train_loss, train_acc))
