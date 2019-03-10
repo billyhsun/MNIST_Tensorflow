@@ -42,23 +42,74 @@ def shuffle(trainData, trainTarget):
     data, target = trainData[randIndx], target[randIndx]
     return data, target
 
-
 def relu(x):
-    # TODO
+    return x * (x>0)
 
 def softmax(x):
-    # TODO
-
+    e_x = np.exp(x)
+    return e_x / e_x.sum()
 
 def computeLayer(X, W, b):
-    # TODO
+    return np.matmul(X, W) + b
 
 def CE(target, prediction):
-
-    # TODO
+    N = target.shape[0]
+    log_score = np.log(prediction)
+    return (-1/N) * np.sum(np.multiply(target, log_score))
 
 def gradCE(target, prediction):
+    N = target.shape[1]
+    return ((-1/N)*(np.sum(np.division(target, prediction), axis=0))).T
 
-    # TODO
+def grad_descent(W_h, W_o, b_h, b_o, trainingData, trainingLabels, epoch, alpha, gamma):
+    trainingLabels = convertOneHot(trainingLabels)
+    W_old = W
+    b_old = b
+    loss = []
+    while(epoch > 0):
+        # Forward Pass
+        x = computeLayer(trainingData, W_h, b_h)
+        x = relu(S)
+        x = computeLayer(S, W_o, b_o)
+        x = softmax(x)
+        print(x[0])
+        loss = CE
+        
 
 
+
+
+        gradW, gradB = gradMSE(W_old, b_old, trainingData, trainingLabels, reg)
+        
+        # Save weights and biases
+        weights = np.concatenate((weights, W_old[np.newaxis,:,:]), axis=0)
+        biases = np.concatenate((biases, b_old[np.newaxis,:,:]), axis=0)
+
+        W_new = W_old - alpha * gradW
+        b_new = b_old - alpha * gradB
+        # Check for convergence
+        if(np.sqrt(np.linalg.norm(W_new - W_old)**2 + np.linalg.norm(b_new - b_old)**2) < EPS):
+            return W_new, b_new, weights, biases
+
+        epoch = epoch + 1
+        W_old = W_new
+        b_old = b_new
+
+    return W_new, b_new, np.array(weights), np.array(biases)
+
+if __name__ == "__main__":
+    trainData, validData, testData, trainTarget, validTarget, testTarget = loadData()
+    print(trainData[0,0,])
+    #print("trainData: {}, trainTarget: {}\nvalidData: {}, validTarget: {}\ntestData: {}, testTarget: {}".format(
+    #    trainData.shape, trainTarget.shape, validData.shape, validTarget.shape, testData.shape, testTarget.shape
+    #))
+    trainData = trainData.reshape(-1, 784)
+    validData = validData.reshape(-1, 784)
+    testData = testData.reshape(-1, 784)
+
+    epochs = 200
+    hidden_size = 1000
+    W_h = np.random.normal(0, 2/(784+hidden_size), (trainData.shape[1], hidden_size))
+    W_o = np.random.normal(0, 2/(hidden_size+10), (hidden_size, 10))
+    print(W_h.shape)
+    print(W_o.shape) 
