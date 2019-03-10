@@ -33,7 +33,6 @@ def convertOneHot(trainTarget, validTarget, testTarget):
         newtest[item][testTarget[item]] = 1
     return newtrain, newvalid, newtest
 
-
 def shuffle(trainData, trainTarget):
     np.random.seed(421)
     randIndx = np.arange(len(trainData))
@@ -52,12 +51,15 @@ def softmax(x):
     return np.divide(e_x, sums)
 
 def computeLayer(X, W, b):
-    b = (b.T).repeat(X.shape[0], axis=0)
-    return np.matmul(X, W) + b
+    #c = b
+    #c = (c.T).repeat(X.shape[0], axis=0)
+    return np.matmul(X, W) + b.T
 
 def CE(target, prediction):
     N = target.shape[0]
     log_score = np.log(prediction)
+    print(target.shape)
+    print(log_score.shape)
     return (-1/N) * np.sum(np.multiply(target, log_score))
 
 def gradCE(target, prediction):
@@ -70,13 +72,38 @@ def gradrelu(x):
     y[y>0] = 1
     return y
 
-def grad_descent(W_h, W_o, b_h, b_o, trainingData, trainingLabels, epoch, alpha, gamma):
-    losses = []
+def calculate_loss_acc(W_h, W_o, b_h, b_o, data, target):
+    print(data.shape)
+    print(W_h.shape)
+    print(b_h.shape)
+    s1 = computeLayer(data, W_h, b_h)
+    x1 = relu(s1)
+    s2 = computeLayer(x1, W_o, b_o)
+    x2 = softmax(s2)
+    loss = CE(target, x2)
+    acc = 0
+    for j in range(x2.shape[0]):
+            ind = np.argmax(x2[j])
+            if(np.argmax(target[j]) == ind):
+                acc = acc + 1
+    acc = acc/x2.shape[0]
+    return loss, acc
+
+def grad_descent(W_h, W_o, b_h, b_o, trainingData, trainingLabels, validData, validLabels, testData, testLabels, epoch, alpha, gamma):
+    train_losses = []
+    train_accs = []
+    valid_losses = []
+    valid_accs = []
+    test_losses = []
+    test_accs = []
+    x = []
+
     N = trainingLabels.shape[0]
     v1 = np.ones(W_o.shape) * (1e-5)
     v2 = np.ones(W_h.shape) * (1e-5)
     v3 = np.ones(b_o.shape) * (1e-5)
     v4 = np.ones(b_h.shape) * (1e-5)
+    print("v4 {}".format(v4.shape))
     i = 0
     while(i < epoch):
         # Forward Pass
@@ -84,10 +111,6 @@ def grad_descent(W_h, W_o, b_h, b_o, trainingData, trainingLabels, epoch, alpha,
         x1 = relu(s1)
         s2 = computeLayer(x1, W_o, b_o)
         x2 = softmax(s2)
-        
-        # Loss
-        loss = CE(trainingLabels, x2)
-        losses.append(loss)
 
         # Backprop
         dL_dWo = (1/N) * np.matmul(x1.T, (x2-trainingLabels))
@@ -95,7 +118,7 @@ def grad_descent(W_h, W_o, b_h, b_o, trainingData, trainingLabels, epoch, alpha,
         q = np.multiply(gradrelu(s1), np.matmul(x2-trainingLabels, W_o.T))
         dL_dWh = (1/N) * np.matmul(trainingData.T, q)
         dL_dbh = (1/N) * np.sum(np.multiply(gradrelu(s1), np.matmul(x2-trainingLabels, W_o.T)), axis=0)
-
+        print("deriv {}".format(dL_dbh.shape))
         # Update
         v1 = gamma * v1 + alpha * dL_dWo
         W_o = W_o - v1
@@ -103,18 +126,41 @@ def grad_descent(W_h, W_o, b_h, b_o, trainingData, trainingLabels, epoch, alpha,
         W_h = W_h - v2
         v3 = gamma * v3 + alpha * dL_dbo
         b_o = b_o - v3
+        print(v4.shape)
+        print(dL_dbh.shape)
+        #print(alpha.shape)
+        #print(gamma.shape)
         v4 = gamma * v4 + alpha * dL_dbh
-        b_h = b_h - v4
-        acc = 0
-        #print(x2.shape)
-        for j in range(x2.shape[0]):
-            ind = np.argmax(x2[j])
-            if(np.argmax(trainingLabels[j]) == ind):
-                acc = acc + 1
-        acc = acc/x2.shape[0]
-        print("Epoch: {} | Loss: {} | Acc : {}".format(i, loss, acc))
+        print("before {}".format(b_h.shape))
+        print(v4.shape)
+        b_h = np.subtract(b_h,v4)
+        print("bh new {}".format(b_h.shape))
+        if(i%5 == 0 or i == epoch-1):
+            train_acc = 0
+            for j in range(x2.shape[0]):
+                ind = np.argmax(x2[j])
+                if(np.argmax(trainingLabels[j]) == ind):
+                    train_acc = train_acc + 1
+            train_acc = train_acc/x2.shape[0]
+            train_accs.append(train_acc)
+            train_loss = CE(trainingLabels, x2)
+            train_losses.append(train_loss)
+
+            valid_loss, valid_acc = calculate_loss_acc(W_h, W_o, b_h, b_o, validData, validLabels)
+            valid_losses.append(valid_loss)
+            valid_accs.append(valid_acc)
+
+            test_loss, test_acc = calculate_loss_acc(W_h, W_o, b_h, b_o, testData, testLabels)
+            test_losses.append(test_loss)
+            test_accs.append(test_acc)
+            
+            x.append(i)
+
+            print("Epoch: {} | Train Loss: {} | Train Acc : {} | Valid Loss: {} | Valid Acc : {} | Test Loss: {} | Test Acc : {}".format
+              (i, train_loss, train_acc, valid_loss, valid_acc, test_loss, test_acc))
         i = i+1
-    return W_h, W_o, b_h, b_o, losses
+    return W_h, W_o, b_h, b_o, train_losses, train_accs, valid_losses, valid_accs, test_losses, test_accs, x
+
 
 if __name__ == "__main__":
     trainData, validData, testData, trainTarget, validTarget, testTarget = loadData()
@@ -125,12 +171,37 @@ if __name__ == "__main__":
     epochs = 200
     hidden_size = 1000
     gamma = 0.9
-    alpha = 0.001
+    alpha = 0.1
 
     W_h = np.random.normal(0, 2/(784+hidden_size), (trainData.shape[1], hidden_size))
     W_o = np.random.normal(0, 2/(hidden_size+10), (hidden_size, 10))
 
-    b_h = np.random.normal(0, 2/(hidden_size), (hidden_size, 1))
-    b_o = np.random.normal(0, 2/(10), (10, 1))
+    b_h = np.random.normal(0, 2/(hidden_size), (hidden_size))
+    print(b_h.shape)
+    b_o = np.random.normal(0, 2/(10), (10))
     newtrain, newvalid, newtest = convertOneHot(trainTarget, validTarget, testTarget)
-    grad_descent(W_h, W_o, b_h, b_o, trainData, newtrain, epochs, alpha, gamma)
+    W_h, W_o, b_h, b_o, train_losses, train_accs, valid_losses, valid_accs, test_losses, test_accs, x = grad_descent(W_h, W_o, b_h, b_o, trainData, newtrain, validData, newvalid, testData, newtest, epochs, alpha, gamma)
+    
+    fig = plt.figure()
+    plt.plot(x, train_losses, label='train loss')
+    plt.plot(x, valid_losses, label='validation loss')
+    plt.plot(x, test_losses, label='test loss')
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_ylim(0, 1)
+    plt.title('Learning losses with hidden size={}'.format(hidden_size))
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend(loc='best')
+    fig.savefig('losses_size_{}.png'.format(hidden_size))
+
+    fig = plt.figure()
+    plt.plot(x, train_accs, label='train accuracy')
+    plt.plot(x, valid_accs, label='validation accuracy')
+    plt.plot(x, test_accs, label='test accuracy')
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_ylim(0, 1)
+    plt.title('Learning accuracy with hidden size={}'.format(hidden_size))
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    plt.legend(loc='best')
+    fig.savefig('losses_size_{}.png'.format(hidden_size))
