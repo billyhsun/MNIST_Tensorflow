@@ -5,6 +5,10 @@ import time
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
+device_name = "/device:GPU:0"
+# device_name = "/cpu:0"
+
+
 # Hyperparameters
 epochs = 50
 batch_size = 32
@@ -52,7 +56,6 @@ def shuffle(trainData, trainTarget):
 
 
 def model_forward(x, weights, biases):
-
     # First conv2d layer
     x = tf.nn.conv2d(x, filter=weights['conv2d_filter1'], strides=[1, 1, 1, 1], padding='SAME')
     x = tf.nn.bias_add(x, biases['bias1'])
@@ -91,6 +94,7 @@ def model_forward(x, weights, biases):
 
 if __name__ == '__main__':
 
+    # with tf.device(device_name):
     trainData, validData, testData, trainTarget, validTarget, testTarget = loadData()
 
     # reshape to 4D tensors for input into CNN
@@ -130,6 +134,16 @@ if __name__ == '__main__':
     # calculate accuracy across all the given images and average them out.
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float64))
 
+    train_losses = []
+    train_accuracies = []
+    valid_losses = []
+    valid_accuracies = []
+    test_losses = []
+    test_accuracies = []
+
+    batches = []
+    counter = 0
+
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
 
@@ -148,8 +162,43 @@ if __name__ == '__main__':
                 valid_loss, valid_acc = sess.run([cost, accuracy], feed_dict={x: validData, y: newvalid})
                 test_loss, test_acc = sess.run([cost, accuracy], feed_dict={x: testData, y: newtest})
 
+                train_losses.append(train_loss)
+                train_accuracies.append(train_acc)
+                valid_losses.append(valid_loss)
+                valid_accuracies.append(valid_acc)
+                test_losses.append(test_loss)
+                test_accuracies.append(test_acc)
+
+                batches.append(counter)
+                counter += 1
+
             print("Epoch: {} | Training loss: {:.5f} Training Accuracy: {:.5f} | Validation Loss: {:.5f} Validation Accuracy: {:.5f} | Test Loss: {:.5f} Test Accuracy: {:.5f}  "
                   .format(epoch + 1, train_loss, train_acc, valid_loss, valid_acc, test_loss, test_acc))
 
             # print("Epoch: {} | Training loss: {:.5f} Training Accuracy: {:.5f}  "
             #      .format(epoch + 1, train_loss, train_acc))
+
+    # Plotting
+    batches = np.array(batches)
+    fig = plt.figure()
+    plt.plot(batches, train_losses, label='Training Loss')
+    plt.plot(batches, valid_losses, label='Test Loss')
+    plt.plot(batches, test_losses, label='Validation Loss')
+    ax = fig.add_subplot(1, 1, 1)
+    plt.title('alpha={}, epsilon={}, batch_size={}'.format(learn_rate, epochs, batch_size))
+    plt.xlabel('Batch')
+    plt.ylabel('Loss')
+    plt.legend(loc='best')
+    fig.savefig('plots/p34c_sgd_loss_eps_{}.png'.format(epochs))
+
+    fig = plt.figure()
+    plt.plot(batches, train_accuracies, label='Training Accuracy')
+    plt.plot(batches, valid_accuracies, label='Validation Accuracy')
+    plt.plot(batches, test_accuracies, label='Testing Accuracy')
+    ax = fig.add_subplot(1, 1, 1)
+    # ax.set_xlim(-200, relevantepoch.shape[0] + 10)
+    plt.title('alpha={}, epsilon={}, batch_size={}'.format(learn_rate, epochs, batch_size))
+    plt.xlabel('Batch')
+    plt.ylabel('Accuracy')
+    plt.legend(loc='best')
+    fig.savefig('plots/p34c_sgd_acc_eps_{}.png'.format(epochs))
