@@ -159,18 +159,20 @@ if __name__ == '__main__':
                 sess.run(optimizer, feed_dict={x: train_Batch, y: train_Target_Batch})
 
                 train_loss, train_acc = sess.run([cost, accuracy], feed_dict={x: train_Batch, y: train_Target_Batch})
-                valid_loss, valid_acc = sess.run([cost, accuracy], feed_dict={x: validData, y: newvalid})
-                test_loss, test_acc = sess.run([cost, accuracy], feed_dict={x: testData, y: newtest})
+                # print(train_loss, train_acc)
 
-                train_losses.append(train_loss)
-                train_accuracies.append(train_acc)
-                valid_losses.append(valid_loss)
-                valid_accuracies.append(valid_acc)
-                test_losses.append(test_loss)
-                test_accuracies.append(test_acc)
+            batches.append(counter)
+            counter += 1
 
-                batches.append(counter)
-                counter += 1
+            valid_loss, valid_acc = sess.run([cost, accuracy], feed_dict={x: validData, y: newvalid})
+            test_loss, test_acc = sess.run([cost, accuracy], feed_dict={x: testData, y: newtest})
+
+            train_losses.append(train_loss)
+            train_accuracies.append(train_acc)
+            valid_losses.append(valid_loss)
+            valid_accuracies.append(valid_acc)
+            test_losses.append(test_loss)
+            test_accuracies.append(test_acc)
 
             print("Epoch: {} | Training loss: {:.5f} Training Accuracy: {:.5f} | Validation Loss: {:.5f} Validation Accuracy: {:.5f} | Test Loss: {:.5f} Test Accuracy: {:.5f}  "
                   .format(epoch + 1, train_loss, train_acc, valid_loss, valid_acc, test_loss, test_acc))
