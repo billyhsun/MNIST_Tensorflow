@@ -47,9 +47,15 @@ def relu(x):
 
 def softmax(x):
     e_x = np.exp(x)
-    return e_x / e_x.sum()
+    sums = e_x.sum(axis=1)
+    sums = np.tile(sums, (10,1)).T
+    return np.divide(e_x, sums)
 
 def computeLayer(X, W, b):
+    b = (b.T).repeat(X.shape[0], axis=0)
+    #print(X.shape)
+    #print(W.shape)
+    #print(b.shape)
     return np.matmul(X, W) + b
 
 def CE(target, prediction):
@@ -61,41 +67,60 @@ def gradCE(target, prediction):
     N = target.shape[1]
     return ((-1/N)*(np.sum(np.division(target, prediction), axis=0))).T
 
+def gradrelu(x):
+    y = x
+    y[y<=0] = 0
+    y[y>0] = 1
+    return y
+
 def grad_descent(W_h, W_o, b_h, b_o, trainingData, trainingLabels, epoch, alpha, gamma):
-    trainingLabels = convertOneHot(trainingLabels)
-    W_old = W
-    b_old = b
-    loss = []
-    while(epoch > 0):
+    losses = []
+    N = trainingLabels.shape[0]
+    v1 = np.ones(W_o.shape) * (1e-5)
+    v2 = np.ones(W_h.shape) * (1e-5)
+    v3 = np.ones(b_o.shape) * (1e-5)
+    v4 = np.ones(W_h.shape) * (1e-5)
+    i = 0
+    while(i < epoch):
         # Forward Pass
-        x = computeLayer(trainingData, W_h, b_h)
-        x = relu(S)
-        x = computeLayer(S, W_o, b_o)
-        x = softmax(x)
-        print(x[0])
-        loss = CE
+        s1 = computeLayer(trainingData, W_h, b_h)
+        x1 = relu(s1)
+        s2 = computeLayer(x1, W_o, b_o)
+        x2 = softmax(s2)
+        print(x2[0])
+        print(x2.shape)
         
+        # Loss
+        loss = CE(trainingLabels, x2)
+        losses.append(loss)
 
+        # Backprop
+        dL_dWo = (1/N) * np.matmul(x1.T, (x2-trainingLabels))
+        dL_dbo = (1/N) * np.sum(x2-trainingLabels, axis=0)
+        print(gradrelu(s1).shape)
+        print(W_o.shape)
+        print((x2-trainingLabels).shape)
+        print(trainingData.shape)
+        dL_dWh = (1/N) * np.matmul(np.multiply(gradrelu(s1), np.matmul(x2-trainingLabels, W_o.T), trainingData))
+        dL_dbh = (1/N) * np.sum(np.multiply(gradrelu(s1), np.matmul(W_o, x2-trainingLabels)), axis=0)
 
-
-
-        gradW, gradB = gradMSE(W_old, b_old, trainingData, trainingLabels, reg)
-        
-        # Save weights and biases
-        weights = np.concatenate((weights, W_old[np.newaxis,:,:]), axis=0)
-        biases = np.concatenate((biases, b_old[np.newaxis,:,:]), axis=0)
-
-        W_new = W_old - alpha * gradW
-        b_new = b_old - alpha * gradB
-        # Check for convergence
-        if(np.sqrt(np.linalg.norm(W_new - W_old)**2 + np.linalg.norm(b_new - b_old)**2) < EPS):
-            return W_new, b_new, weights, biases
-
-        epoch = epoch + 1
-        W_old = W_new
-        b_old = b_new
-
-    return W_new, b_new, np.array(weights), np.array(biases)
+        # Update
+        v1 = gamma * v1 + alpha * dL_dWo
+        W_o = W_o - v1
+        v2 = gamma * v2 + alpha * dL_dWh
+        W_h = W_h - v2
+        v3 = gamma * v3 + alpha * dL_dbo
+        b_o = b_o - v3
+        v4 = gamma * v4 + alpha * dL_dbh
+        b_h = b_h - v4
+        acc = 0
+        for j in range(x2.shape[0]):
+            ind = np.argmax[x2[j]]
+            if(trainingLabels[ind] == 1):
+                acc = acc + 1
+        print("Epoch: {} | Loss: {} | Acc : {}".format(epoch, loss, acc))
+        i = i+1
+    return W_h, W_o, b_h, b_o, losses
 
 if __name__ == "__main__":
     trainData, validData, testData, trainTarget, validTarget, testTarget = loadData()
@@ -109,7 +134,13 @@ if __name__ == "__main__":
 
     epochs = 200
     hidden_size = 1000
+    gamma = 0.9
+    alpha = 0.001
+
     W_h = np.random.normal(0, 2/(784+hidden_size), (trainData.shape[1], hidden_size))
     W_o = np.random.normal(0, 2/(hidden_size+10), (hidden_size, 10))
-    print(W_h.shape)
-    print(W_o.shape) 
+
+    b_h = np.random.normal(0, 2/(hidden_size), (hidden_size, 1))
+    b_o = np.random.normal(0, 2/(10), (10, 1))
+    newtrain, newvalid, newtest = convertOneHot(trainTarget, validTarget, testTarget)
+    grad_descent(W_h, W_o, b_h, b_o, trainData, newtrain, epochs, alpha, gamma)
