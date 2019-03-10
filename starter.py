@@ -53,9 +53,6 @@ def softmax(x):
 
 def computeLayer(X, W, b):
     b = (b.T).repeat(X.shape[0], axis=0)
-    #print(X.shape)
-    #print(W.shape)
-    #print(b.shape)
     return np.matmul(X, W) + b
 
 def CE(target, prediction):
@@ -79,7 +76,7 @@ def grad_descent(W_h, W_o, b_h, b_o, trainingData, trainingLabels, epoch, alpha,
     v1 = np.ones(W_o.shape) * (1e-5)
     v2 = np.ones(W_h.shape) * (1e-5)
     v3 = np.ones(b_o.shape) * (1e-5)
-    v4 = np.ones(W_h.shape) * (1e-5)
+    v4 = np.ones(b_h.shape) * (1e-5)
     i = 0
     while(i < epoch):
         # Forward Pass
@@ -87,8 +84,6 @@ def grad_descent(W_h, W_o, b_h, b_o, trainingData, trainingLabels, epoch, alpha,
         x1 = relu(s1)
         s2 = computeLayer(x1, W_o, b_o)
         x2 = softmax(s2)
-        print(x2[0])
-        print(x2.shape)
         
         # Loss
         loss = CE(trainingLabels, x2)
@@ -97,12 +92,9 @@ def grad_descent(W_h, W_o, b_h, b_o, trainingData, trainingLabels, epoch, alpha,
         # Backprop
         dL_dWo = (1/N) * np.matmul(x1.T, (x2-trainingLabels))
         dL_dbo = (1/N) * np.sum(x2-trainingLabels, axis=0)
-        print(gradrelu(s1).shape)
-        print(W_o.shape)
-        print((x2-trainingLabels).shape)
-        print(trainingData.shape)
-        dL_dWh = (1/N) * np.matmul(np.multiply(gradrelu(s1), np.matmul(x2-trainingLabels, W_o.T), trainingData))
-        dL_dbh = (1/N) * np.sum(np.multiply(gradrelu(s1), np.matmul(W_o, x2-trainingLabels)), axis=0)
+        q = np.multiply(gradrelu(s1), np.matmul(x2-trainingLabels, W_o.T))
+        dL_dWh = (1/N) * np.matmul(trainingData.T, q)
+        dL_dbh = (1/N) * np.sum(np.multiply(gradrelu(s1), np.matmul(x2-trainingLabels, W_o.T)), axis=0)
 
         # Update
         v1 = gamma * v1 + alpha * dL_dWo
@@ -114,20 +106,18 @@ def grad_descent(W_h, W_o, b_h, b_o, trainingData, trainingLabels, epoch, alpha,
         v4 = gamma * v4 + alpha * dL_dbh
         b_h = b_h - v4
         acc = 0
+        #print(x2.shape)
         for j in range(x2.shape[0]):
-            ind = np.argmax[x2[j]]
-            if(trainingLabels[ind] == 1):
+            ind = np.argmax(x2[j])
+            if(np.argmax(trainingLabels[j]) == ind):
                 acc = acc + 1
-        print("Epoch: {} | Loss: {} | Acc : {}".format(epoch, loss, acc))
+        acc = acc/x2.shape[0]
+        print("Epoch: {} | Loss: {} | Acc : {}".format(i, loss, acc))
         i = i+1
     return W_h, W_o, b_h, b_o, losses
 
 if __name__ == "__main__":
     trainData, validData, testData, trainTarget, validTarget, testTarget = loadData()
-    print(trainData[0,0,])
-    #print("trainData: {}, trainTarget: {}\nvalidData: {}, validTarget: {}\ntestData: {}, testTarget: {}".format(
-    #    trainData.shape, trainTarget.shape, validData.shape, validTarget.shape, testData.shape, testTarget.shape
-    #))
     trainData = trainData.reshape(-1, 784)
     validData = validData.reshape(-1, 784)
     testData = testData.reshape(-1, 784)
