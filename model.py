@@ -13,8 +13,9 @@ device_name = "/device:GPU:0"
 epochs = 50
 batch_size = 32
 learn_rate = 0.0001
-regularization = 0.1
 num_classes = 10
+regularization = 0.01  # 0.01, 0.1, 0.5
+dropout_rate = 0.5  # 0.9, 0.75, 0.5
 
 
 # Load the data
@@ -78,7 +79,7 @@ def model_forward(x, weights, biases):
     x = tf.add(tf.matmul(x, weights['fc1_weight']), biases['fc1_bias'])
 
     # Dropout layer
-    x = tf.layers.dropout(x, rate=0.9)
+    x = tf.layers.dropout(x, rate=dropout_rate)
 
     # Second ReLU layer
     x = tf.nn.relu(x)
@@ -187,8 +188,9 @@ if __name__ == '__main__':
     plt.plot(batches, valid_losses, label='Test Loss')
     plt.plot(batches, test_losses, label='Validation Loss')
     ax = fig.add_subplot(1, 1, 1)
+    ax.set_ylim(0.0, max([max(train_losses), max(valid_losses), max(test_losses)]))
     plt.title('alpha={}, epsilon={}, batch_size={}'.format(learn_rate, epochs, batch_size))
-    plt.xlabel('Batch')
+    plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.legend(loc='best')
     fig.savefig('plots/p34c_sgd_loss_eps_{}.png'.format(epochs))
@@ -198,9 +200,9 @@ if __name__ == '__main__':
     plt.plot(batches, valid_accuracies, label='Validation Accuracy')
     plt.plot(batches, test_accuracies, label='Testing Accuracy')
     ax = fig.add_subplot(1, 1, 1)
-    # ax.set_xlim(-200, relevantepoch.shape[0] + 10)
+    ax.set_ylim(0.0, 1.0)
     plt.title('alpha={}, epsilon={}, batch_size={}'.format(learn_rate, epochs, batch_size))
-    plt.xlabel('Batch')
+    plt.xlabel('Epoch')
     plt.ylabel('Accuracy')
     plt.legend(loc='best')
     fig.savefig('plots/p34c_sgd_acc_eps_{}.png'.format(epochs))

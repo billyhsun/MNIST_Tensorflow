@@ -1,0 +1,34 @@
+reg = 0.01:
+
+Training loss: 1.55114 Training Accuracy: 1.00000 | Validation Loss: 1.63315 Validation Accuracy: 0.91717 | Test Loss: 1.62995 Test Accuracy: 0.91887 
+
+
+
+reg = 0.1:
+
+Training loss: 1.77103 Training Accuracy: 0.90625 | Validation Loss: 1.79536 Validation Accuracy: 0.89450 | Test Loss: 1.79053 Test Accuracy: 0.90051
+
+
+
+reg = 0.5:
+
+Training loss: 2.14877 Training Accuracy: 0.81250 | Validation Loss: 2.21887 Validation Accuracy: 0.77000 | Test Loss: 2.21428 Test Accuracy: 0.77680  
+
+
+
+
+dropout = 0.9:
+
+Training loss: 1.55558 Training Accuracy: 1.00000 | Validation Loss: 1.62290 Validation Accuracy: 0.92317 | Test Loss: 1.62081 Test Accuracy: 0.92474  
+
+
+
+dropout = 0.75:
+
+Training loss: 1.55055 Training Accuracy: 1.00000 | Validation Loss: 1.62356 Validation Accuracy: 0.92367 | Test Loss: 1.62329 Test Accuracy: 0.92034  
+
+
+
+dropout = 0.5:
+
+Training loss: 1.55125 Training Accuracy: 1.00000 | Validation Loss: 1.62912 Validation Accuracy: 0.91717 | Test Loss: 1.62773 Test Accuracy: 0.91850 
