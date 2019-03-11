@@ -22,11 +22,9 @@ dropout = 0.9:
 Training loss: 1.55558 Training Accuracy: 1.00000 | Validation Loss: 1.62290 Validation Accuracy: 0.92317 | Test Loss: 1.62081 Test Accuracy: 0.92474  
 
 
-
 dropout = 0.75:
 
 Training loss: 1.55055 Training Accuracy: 1.00000 | Validation Loss: 1.62356 Validation Accuracy: 0.92367 | Test Loss: 1.62329 Test Accuracy: 0.92034  
-
 
 
 dropout = 0.5:

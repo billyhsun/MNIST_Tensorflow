@@ -79,7 +79,7 @@ def model_forward(x, weights, biases):
     x = tf.add(tf.matmul(x, weights['fc1_weight']), biases['fc1_bias'])
 
     # Dropout layer
-    x = tf.layers.dropout(x, rate=dropout_rate)
+    # x = tf.layers.dropout(x, rate=dropout_rate)
 
     # Second ReLU layer
     x = tf.nn.relu(x)
@@ -149,8 +149,21 @@ if __name__ == '__main__':
         sess.run(tf.global_variables_initializer())
 
         num_batches = int(trainData.shape[0] / batch_size)
-        for epoch in range(epochs):
 
+        # Initial evaluation before training
+        train_loss, train_acc = sess.run([cost, accuracy], feed_dict={x: trainData, y: newtrain})
+        valid_loss, valid_acc = sess.run([cost, accuracy], feed_dict={x: validData, y: newvalid})
+        test_loss, test_acc = sess.run([cost, accuracy], feed_dict={x: testData, y: newtest})
+
+        train_losses.append(train_loss)
+        train_accuracies.append(train_acc)
+        valid_losses.append(valid_loss)
+        valid_accuracies.append(valid_acc)
+        test_losses.append(test_loss)
+        test_accuracies.append(test_acc)
+
+        # Training
+        for epoch in range(epochs):
             shuffle(trainData, newtrain)
 
             for i in range(num_batches):
