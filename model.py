@@ -15,8 +15,9 @@ batch_size = 32
 learn_rate = 0.0001
 num_classes = 10
 regularization = 0.01  # 0.01, 0.1, 0.5
-dropout_rate = 0.5  # 0.9, 0.75, 0.5
-
+reg = '001'
+dropout_rate = 0.9  # 0.9, 0.75, 0.5
+dr = '09'
 
 # Load the data
 def loadData():
@@ -79,7 +80,7 @@ def model_forward(x, weights, biases):
     x = tf.add(tf.matmul(x, weights['fc1_weight']), biases['fc1_bias'])
 
     # Dropout layer
-    # x = tf.layers.dropout(x, rate=dropout_rate)
+    x = tf.layers.dropout(x, rate=dropout_rate, training=True)
 
     # Second ReLU layer
     x = tf.nn.relu(x)
@@ -98,7 +99,7 @@ if __name__ == '__main__':
     # with tf.device(device_name):
     trainData, validData, testData, trainTarget, validTarget, testTarget = loadData()
 
-    # reshape to 4D tensors for input into CNN
+    # Reshape to 4D tensors for input into CNN
     trainData = np.expand_dims(trainData, 3)
     validData = np.expand_dims(validData, 3)
     testData = np.expand_dims(testData, 3)
@@ -123,16 +124,20 @@ if __name__ == '__main__':
 
     pred = model_forward(x, weights, biases)
 
+    # Calculate cost (with l2 regularization)
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=pred)) + \
         tf.multiply(
                tf.reduce_sum(tf.square(weights['conv2d_filter1'])) + tf.reduce_sum(tf.square(weights['fc1_weight']))
                + tf.reduce_sum(tf.square(weights['out_weight'])), regularization / 2)
 
+    # regularizer = tf.nn.l2_loss(weights)
+    # loss = tf.reduce_mean(loss + beta * regularizer)
+
     optimizer = tf.train.AdamOptimizer(learning_rate=learn_rate).minimize(cost)
 
     correct_prediction = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
 
-    # calculate accuracy across all the given images and average them out.
+    # Calculate accuracy across all the given images and average them out.
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float64))
 
     train_losses = []
@@ -162,6 +167,8 @@ if __name__ == '__main__':
         test_losses.append(test_loss)
         test_accuracies.append(test_acc)
 
+        batches.append(counter)
+
         # Training
         for epoch in range(epochs):
             shuffle(trainData, newtrain)
@@ -175,8 +182,8 @@ if __name__ == '__main__':
                 train_loss, train_acc = sess.run([cost, accuracy], feed_dict={x: train_Batch, y: train_Target_Batch})
                 # print(train_loss, train_acc)
 
-            batches.append(counter)
             counter += 1
+            batches.append(counter)
 
             valid_loss, valid_acc = sess.run([cost, accuracy], feed_dict={x: validData, y: newvalid})
             test_loss, test_acc = sess.run([cost, accuracy], feed_dict={x: testData, y: newtest})
@@ -195,6 +202,14 @@ if __name__ == '__main__':
             #      .format(epoch + 1, train_loss, train_acc))
 
     # Plotting
+    np.save('plots/epochs', batches)
+    np.save('plots/train_acc', np.array(train_accuracies))
+    np.save('plots/valid_acc', np.array(valid_accuracies))
+    np.save('plots/test_acc', np.array(test_accuracies))
+    np.save('plots/train_loss', np.array(test_losses))
+    np.save('plots/valid_loss', np.array(valid_losses))
+    np.save('plots/test_loss', np.array(test_losses))
+
     batches = np.array(batches)
     fig = plt.figure()
     plt.plot(batches, train_losses, label='Training Loss')
@@ -206,7 +221,7 @@ if __name__ == '__main__':
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.legend(loc='best')
-    fig.savefig('plots/p34c_sgd_loss_eps_{}.png'.format(epochs))
+    fig.savefig('plots/loss_dropout={}.png'.format(dr))
 
     fig = plt.figure()
     plt.plot(batches, train_accuracies, label='Training Accuracy')
@@ -218,4 +233,4 @@ if __name__ == '__main__':
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy')
     plt.legend(loc='best')
-    fig.savefig('plots/p34c_sgd_acc_eps_{}.png'.format(epochs))
+    fig.savefig('plots/acc_dropout={}.png'.format(dr))
