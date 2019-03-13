@@ -2,22 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5156bfd8-4862-41da-9995-f5e6268184f0" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/temp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/acc_dropout=05.png" beforeDir="false" afterPath="$PROJECT_DIR$/plots/acc_dropout=05.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/acc_dropout=075.png" beforeDir="false" afterPath="$PROJECT_DIR$/plots/acc_dropout=075.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/acc_dropout=09.png" beforeDir="false" afterPath="$PROJECT_DIR$/plots/acc_dropout=09.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/acc_reg=001.png" beforeDir="false" afterPath="$PROJECT_DIR$/plots/acc_reg=001.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/acc_reg=01.png" beforeDir="false" afterPath="$PROJECT_DIR$/plots/acc_reg=01.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/acc_reg=05.png" beforeDir="false" afterPath="$PROJECT_DIR$/plots/acc_reg=05.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/accuracies" beforeDir="false" afterPath="$PROJECT_DIR$/plots/accuracies" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/loss_dropout=05.png" beforeDir="false" afterPath="$PROJECT_DIR$/plots/loss_dropout=05.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/loss_dropout=075.png" beforeDir="false" afterPath="$PROJECT_DIR$/plots/loss_dropout=075.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/loss_dropout=09.png" beforeDir="false" afterPath="$PROJECT_DIR$/plots/loss_dropout=09.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/loss_reg=001.png" beforeDir="false" afterPath="$PROJECT_DIR$/plots/loss_reg=001.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/loss_reg=01.png" beforeDir="false" afterPath="$PROJECT_DIR$/plots/loss_reg=01.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/loss_reg=05.png" beforeDir="false" afterPath="$PROJECT_DIR$/plots/loss_reg=05.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/starter.py" beforeDir="false" afterPath="$PROJECT_DIR$/starter.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -26,20 +12,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/model.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2609">
-              <caret line="19" column="9" lean-forward="true" selection-start-line="19" selection-start-column="9" selection-end-line="19" selection-end-column="9" />
-              <folding>
-                <element signature="e#0#23#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -62,9 +35,10 @@
       <list>
         <option value="$PROJECT_DIR$/gpu_test.py" />
         <option value="$PROJECT_DIR$/plotting.py" />
-        <option value="$PROJECT_DIR$/model.py" />
         <option value="$PROJECT_DIR$/temp.py" />
         <option value="$PROJECT_DIR$/plots/accuracies" />
+        <option value="$PROJECT_DIR$/starter.py" />
+        <option value="$PROJECT_DIR$/model.py" />
       </list>
     </option>
   </component>
@@ -80,6 +54,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -87,16 +62,10 @@
               <item name="ece421_assign2" type="b2602c69:ProjectViewProjectNode" />
               <item name="ece421_assign2" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="ece421_assign2" type="b2602c69:ProjectViewProjectNode" />
-              <item name="ece421_assign2" type="462c0819:PsiDirectoryNode" />
-              <item name="plots" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -246,7 +215,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="25" width="1366" height="743" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24524158" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -341,8 +309,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2609">
-          <caret line="19" column="9" lean-forward="true" selection-start-line="19" selection-start-column="9" selection-end-line="19" selection-end-column="9" />
+        <state relative-caret-position="270">
+          <caret line="223" column="26" lean-forward="true" selection-start-line="223" selection-start-column="26" selection-end-line="223" selection-end-column="26" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/starter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2700">
+          <caret line="180" column="22" lean-forward="true" selection-start-line="180" selection-start-column="22" selection-end-line="180" selection-end-column="22" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
           </folding>

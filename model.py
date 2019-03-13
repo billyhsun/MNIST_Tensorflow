@@ -19,6 +19,7 @@ reg = '001'
 dropout_rate = 0.9  # 0.9, 0.75, 0.5
 dr = '09'
 
+
 # Load the data
 def loadData():
     with np.load("notMNIST.npz") as data:
@@ -104,6 +105,7 @@ if __name__ == '__main__':
     validData = np.expand_dims(validData, 3)
     testData = np.expand_dims(testData, 3)
 
+    # Set up all the variables (inputs, outputs, weights, biases)
     x = tf.placeholder("float", [None, 28, 28, 1])
     y = tf.placeholder("float", [None, num_classes])
 
@@ -130,9 +132,7 @@ if __name__ == '__main__':
                tf.reduce_sum(tf.square(weights['conv2d_filter1'])) + tf.reduce_sum(tf.square(weights['fc1_weight']))
                + tf.reduce_sum(tf.square(weights['out_weight'])), regularization / 2)
 
-    # regularizer = tf.nn.l2_loss(weights)
-    # loss = tf.reduce_mean(loss + beta * regularizer)
-
+    # Adam optimizer
     optimizer = tf.train.AdamOptimizer(learning_rate=learn_rate).minimize(cost)
 
     correct_prediction = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
@@ -210,6 +210,7 @@ if __name__ == '__main__':
     np.save('plots/valid_loss', np.array(valid_losses))
     np.save('plots/test_loss', np.array(test_losses))
 
+    # Loss
     batches = np.array(batches)
     fig = plt.figure()
     plt.plot(batches, train_losses, label='Training Loss')
@@ -223,6 +224,7 @@ if __name__ == '__main__':
     plt.legend(loc='best')
     fig.savefig('plots/loss_dropout={}.png'.format(dr))
 
+    # Accuracy
     fig = plt.figure()
     plt.plot(batches, train_accuracies, label='Training Accuracy')
     plt.plot(batches, valid_accuracies, label='Validation Accuracy')
